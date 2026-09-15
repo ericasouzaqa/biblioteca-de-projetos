@@ -48,6 +48,10 @@ jobs:
         shell: pwsh
         run: |
           if (-not (Test-Path "dist/BibliotecaDeProjetos.exe")) { throw "Executável não gerado" }
+          $process = Start-Process -FilePath "dist/BibliotecaDeProjetos.exe" -PassThru
+          Start-Sleep -Seconds 5
+          if ($process.HasExited) { throw "Executável encerrou inesperadamente com código $($process.ExitCode)" }
+          Stop-Process -Id $process.Id -Force
           Get-Item "dist/BibliotecaDeProjetos.exe"
       - name: Create portable ZIP
         shell: pwsh

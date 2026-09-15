@@ -20,12 +20,13 @@ jobs:
       - run: ruff check .
       - run: pytest --cov=storage --cov-fail-under=80
       - run: python -m PyInstaller --noconfirm --clean BibliotecaDeProjetos.spec
-      - run: tar -czf BibliotecaDeProjetos-linux.tar.gz -C dist BibliotecaDeProjetos
+      - run: cp dist/BibliotecaDeProjetos BibliotecaDeProjetos-linux
+      - run: tar -czf BibliotecaDeProjetos-linux.tar.gz BibliotecaDeProjetos-linux
       - uses: actions/upload-artifact@v4
         with:
           name: release-linux
           path: |
-            dist/BibliotecaDeProjetos
+            BibliotecaDeProjetos-linux
             BibliotecaDeProjetos-linux.tar.gz
 
   build-windows:
@@ -45,14 +46,23 @@ jobs:
       - name: Verify executable
         shell: pwsh
         run: if (-not (Test-Path "dist/BibliotecaDeProjetos.exe")) { throw "Executável não gerado" }
+      - name: Smoke test executable startup
+        shell: pwsh
+        run: |
+          $process = Start-Process -FilePath "dist/BibliotecaDeProjetos.exe" -PassThru
+          Start-Sleep -Seconds 5
+          if ($process.HasExited) { throw "Executável encerrou inesperadamente com código $($process.ExitCode)" }
+          Stop-Process -Id $process.Id -Force
       - name: Package Windows
         shell: pwsh
-        run: Compress-Archive -Path dist/BibliotecaDeProjetos.exe -DestinationPath BibliotecaDeProjetos-windows-${{ matrix.os }}.zip
+        run: |
+          Copy-Item dist/BibliotecaDeProjetos.exe BibliotecaDeProjetos-${{ matrix.os }}.exe
+          Compress-Archive -Path BibliotecaDeProjetos-${{ matrix.os }}.exe -DestinationPath BibliotecaDeProjetos-windows-${{ matrix.os }}.zip
       - uses: actions/upload-artifact@v4
         with:
           name: release-${{ matrix.os }}
           path: |
-            dist/BibliotecaDeProjetos.exe
+            BibliotecaDeProjetos-${{ matrix.os }}.exe
             BibliotecaDeProjetos-windows-${{ matrix.os }}.zip
 
   publish:
@@ -68,8 +78,9 @@ jobs:
           generate_release_notes: true
           body_path: RELEASE_NOTES.md
           files: |
-            release-assets/**/BibliotecaDeProjetos
+            release-assets/**/BibliotecaDeProjetos-linux
             release-assets/**/BibliotecaDeProjetos-linux.tar.gz
-            release-assets/**/BibliotecaDeProjetos.exe
+            release-assets/**/BibliotecaDeProjetos-windows-2019.exe
+            release-assets/**/BibliotecaDeProjetos-windows-2022.exe
             release-assets/**/BibliotecaDeProjetos-windows-windows-2019.zip
             release-assets/**/BibliotecaDeProjetos-windows-windows-2022.zip

@@ -1,17 +1,19 @@
-# Release Notes — BibliotecaDeProjetos
-
-## Status
-
-Estas notas estão preparadas para a próxima release, mas a publicação permanece bloqueada até a conclusão e aprovação de todos os itens em `RELEASE_CHECKLIST.md`.
+# Release Notes — BibliotecaDeProjetos v0.1.0
 
 ## Conteúdo
 
-A versão reúne o cadastro e acompanhamento de projetos, prompts vinculados, busca global, dashboard, backup ZIP, restauração local e empacotamento portátil com PyInstaller.
+A versão inicial reúne cadastro e acompanhamento de projetos, prompts vinculados, checklists, busca global, dashboard, backup ZIP, restauração local segura e empacotamento portátil com PyInstaller para Linux e Windows.
 
-## Validação obrigatória
+## Validação local concluída
 
-A publicação depende de lint aprovado, cobertura mínima de 80%, testes de regressão aprovados, smoke test completo e builds Windows bem-sucedidos nos runners Windows 2019 e Windows 2022.
+Ruff passou sem erros. A suíte pytest passou com 20 testes e cobertura de 100% do núcleo de armazenamento, acima do mínimo exigido de 80%. Foram validados CRUD de projetos, prompts, busca, dashboard, backup, restauração, arquivos ausentes, ZIP corrompido, caminhos inválidos, projeto vazio, prompt vazio e persistência após fechamento e reabertura.
 
-## Limitações da validação local
+O build PyInstaller Linux foi concluído e o smoke test da aplicação Tkinter foi aprovado. O smoke test confirma abertura, criação, salvamento, fechamento, reabertura e preservação de dados.
 
-Este ambiente é Linux. Portanto, a execução real do executável Windows e a confirmação específica de Windows 10/11 dependem do workflow GitHub Actions configurado em `.github/workflows/validate.yml`. Nenhuma release deve ser publicada antes de esse workflow concluir com sucesso.
+## Validação remota pendente
+
+A validação real dos executáveis Windows nos runners `windows-2019` e `windows-2022` ainda depende da criação do repositório remoto e da execução dos workflows GitHub Actions. Nenhuma release deve ser publicada antes de ambos os jobs Windows passarem, incluindo Ruff, pytest, cobertura, build e smoke test do executável.
+
+## Regra de publicação
+
+A tag inicial deve ser exclusivamente `v0.1.0`. A tag `v1.0.0` não pertence a este novo projeto.

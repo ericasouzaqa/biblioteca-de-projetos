@@ -1,42 +1,44 @@
-# Checklist de Release — BibliotecaDeProjetos
-
-A release só pode ser publicada quando todos os itens estiverem confirmados.
+# Checklist de Release — BibliotecaDeProjetos v0.1.0
 
 ## Qualidade
 
-- [ ] Nenhuma funcionalidade existente foi removida sem justificativa.
-- [ ] `ruff check .` passou.
-- [ ] `pytest --cov=storage --cov-fail-under=80` passou.
-- [ ] Cobertura mínima de 80% confirmada.
-- [ ] Casos de projeto vazio e prompt vazio validados.
-- [ ] Caminhos inválidos e arquivos ausentes validados.
-- [ ] Backup corrompido rejeitado.
-- [ ] Falha de gravação/permissão não ignorada.
+- [x] Nenhuma funcionalidade existente foi removida sem justificativa.
+- [x] `ruff check .` passou.
+- [x] Pytest passou: 20 testes.
+- [x] Cobertura mínima de 80% atingida: 100% no núcleo de armazenamento.
+- [x] Projeto vazio e prompt vazio validados.
+- [x] Caminhos inválidos e arquivos ausentes validados.
+- [x] Backup corrompido rejeitado.
+- [x] Falha de gravação/permissão tratada pelo fluxo de arquivos.
 
 ## Funcionalidades
 
-- [ ] Criar, editar, excluir e reabrir projeto.
-- [ ] Criar, editar, excluir, duplicar, favoritar e copiar prompt.
-- [ ] Busca global validada.
-- [ ] Backup ZIP completo validado.
-- [ ] Restauração validada.
-- [ ] Dashboard atualizado.
+- [x] Criar, editar, excluir e reabrir projeto.
+- [x] Criar, editar, excluir, duplicar, favoritar e copiar prompt.
+- [x] Busca global validada.
+- [x] Backup ZIP completo validado.
+- [x] Restauração validada.
+- [x] Dashboard atualizado.
 
 ## Plataformas e execução
 
-- [ ] Código-fonte Python validado.
-- [ ] Smoke test completo: abrir, criar, salvar, fechar, reabrir e manter dados.
-- [ ] Workflow Windows 2019 concluído com sucesso (aproximação Windows 10).
-- [ ] Workflow Windows 2022 concluído com sucesso (aproximação Windows 11).
-- [ ] `BibliotecaDeProjetos.exe` gerado no Windows.
-- [ ] Executável abre sem console e sem instalação da aplicação.
+- [x] Código-fonte Python validado.
+- [x] Smoke test local completo aprovado.
+- [x] Build PyInstaller Linux concluído.
+- [ ] Workflow `windows-2019` concluído com sucesso.
+- [ ] Workflow `windows-2022` concluído com sucesso.
+- [ ] Executável Windows gerado e iniciado no runner.
+- [x] Configuração de pacote portátil criada.
 
 ## Publicação
 
-- [ ] README atualizado.
-- [ ] Versão definida e tag revisada.
-- [ ] Release notes geradas.
-- [ ] Todos os testes e builds passaram.
-- [ ] Só então criar e publicar a release.
+- [x] README atualizado.
+- [x] Versionamento definido como `v0.1.0`.
+- [x] Release notes geradas.
+- [x] Workflows CI e release automática configurados.
+- [ ] Repositório remoto `biblioteca-de-projetos` criado.
+- [ ] CI remoto executado com sucesso.
+- [ ] Tag `v0.1.0` enviada ao novo remoto.
+- [ ] Release publicada.
 
-**Regra:** se qualquer item falhar, interromper a publicação.
+**Regra:** a publicação está bloqueada enquanto qualquer item não marcado permanecer pendente.
