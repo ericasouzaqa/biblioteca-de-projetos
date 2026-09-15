@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -r requirements.txt
+      - run: ruff check .
+      - run: pytest --cov=storage --cov-fail-under=80
+      - run: python -m PyInstaller --noconfirm --clean BibliotecaDeProjetos.spec
+      - run: tar -czf BibliotecaDeProjetos-linux.tar.gz -C dist BibliotecaDeProjetos
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-linux
+          path: |
+            dist/BibliotecaDeProjetos
+            BibliotecaDeProjetos-linux.tar.gz
+
+  build-windows:
+    strategy:
+      matrix:
+        os: [windows-2019, windows-2022]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -r requirements.txt
+      - run: ruff check .
+      - run: pytest --cov=storage --cov-fail-under=80
+      - run: python -m PyInstaller --noconfirm --clean BibliotecaDeProjetos.spec
+      - name: Verify executable
+        shell: pwsh
+        run: if (-not (Test-Path "dist/BibliotecaDeProjetos.exe")) { throw "Executável não gerado" }
+      - name: Package Windows
+        shell: pwsh
+        run: Compress-Archive -Path dist/BibliotecaDeProjetos.exe -DestinationPath BibliotecaDeProjetos-windows-${{ matrix.os }}.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.os }}
+          path: |
+            dist/BibliotecaDeProjetos.exe
+            BibliotecaDeProjetos-windows-${{ matrix.os }}.zip
+
+  publish:
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          body_path: RELEASE_NOTES.md
+          files: |
+            release-assets/**/BibliotecaDeProjetos
+            release-assets/**/BibliotecaDeProjetos-linux.tar.gz
+            release-assets/**/BibliotecaDeProjetos.exe
+            release-assets/**/BibliotecaDeProjetos-windows-windows-2019.zip
+            release-assets/**/BibliotecaDeProjetos-windows-windows-2022.zip
