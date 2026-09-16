@@ -1,19 +1,13 @@
-# Release Notes — BibliotecaDeProjetos v0.1.1
+# Release Notes — BibliotecaDeProjetos v0.2.0
 
-## Conteúdo
+## Novidades
 
-A versão inicial reúne cadastro e acompanhamento de projetos, prompts vinculados, checklists, busca global, dashboard, backup ZIP, restauração local segura e empacotamento portátil com PyInstaller para Linux e Windows.
+A versão v0.2.0 adiciona suporte opcional a Markdown em descrições de projetos, observações, continuidade e conteúdos de prompts. O usuário pode escolher entre Texto simples e Markdown, visualizar um preview local e exportar o projeto para um arquivo `.md`.
 
-## Validação local concluída
+## Compatibilidade e privacidade
 
-Ruff passou sem erros. A suíte pytest passou com 20 testes e cobertura de 100% do núcleo de armazenamento, acima do mínimo exigido de 80%. Foram validados CRUD de projetos, prompts, busca, dashboard, backup, restauração, arquivos ausentes, ZIP corrompido, caminhos inválidos, projeto vazio, prompt vazio e persistência após fechamento e reabertura.
+O formato JSON existente foi preservado. Registros antigos sem metadados continuam sendo tratados como Texto simples, sem conversão automática. Backups, restauração, funcionamento offline e armazenamento local permanecem inalterados. Nenhum conteúdo é enviado para APIs, nuvem ou serviços externos.
 
-O build PyInstaller Linux foi concluído e o smoke test da aplicação Tkinter foi aprovado. O smoke test confirma abertura, criação, salvamento, fechamento, reabertura e preservação de dados.
+## Validação
 
-## Validação remota pendente
-
-A validação real dos executáveis Windows nos runners `windows-2025` e `windows-2022` ainda depende da criação do repositório remoto e da execução dos workflows GitHub Actions. Nenhuma release deve ser publicada antes de ambos os jobs Windows passarem, incluindo Ruff, pytest, cobertura, build e smoke test do executável.
-
-## Regra de publicação
-
-A tag inicial deve ser exclusivamente `v0.1.1`. A tag `v1.0.0` não pertence a este novo projeto.
+A release foi validada com Ruff, Pytest, cobertura superior a 80%, testes de acessibilidade, backup, restauração, Markdown, exportação, smoke test Tkinter e builds PyInstaller para Ubuntu, Windows 2022 e Windows 2025.

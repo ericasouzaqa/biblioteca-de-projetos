@@ -72,6 +72,9 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: release-assets
+      - name: Generate SHA-256 checksums
+        run: |
+          find release-assets -type f \( -name '*.exe' -o -name '*.zip' -o -name 'BibliotecaDeProjetos-linux' -o -name '*.tar.gz' \) -print0 | sort -z | xargs -0 sha256sum > release-assets/SHA256SUMS.txt
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -84,3 +87,4 @@ jobs:
             release-assets/**/BibliotecaDeProjetos-windows-windows-2022.zip
             release-assets/**/BibliotecaDeProjetos-windows-2025.exe
             release-assets/**/BibliotecaDeProjetos-windows-windows-2025.zip
+            release-assets/SHA256SUMS.txt
