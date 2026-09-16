@@ -2,14 +2,28 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from uuid import uuid4
 
+from services.markdown import render_markdown
 from storage.local_storage import STATUSES
 
-BG = "#0b1020"
-SURFACE = "#121a2b"
-SURFACE_RAISED = "#1b263d"
-TEXT = "#edf2f7"
-MUTED = "#a9b6c8"
-ACCENT = "#4fd1c5"
+BG = "#0B1020"
+SURFACE = "#16213E"
+SURFACE_RAISED = "#16213E"
+TEXT = "#00E5FF"
+MUTED = "#F59E0B"
+ACCENT = "#00E5FF"
+FOCUS = "#FF4FD8"
+
+
+def show_markdown_preview(parent, text, fmt):
+    preview = tk.Toplevel(parent)
+    preview.title("Preview — " + ("Markdown" if fmt == "markdown" else "Texto simples"))
+    preview.geometry("700x500")
+    preview.transient(parent)
+    area = tk.Text(preview, bg=SURFACE_RAISED, fg=TEXT, insertbackground=TEXT, relief="flat", wrap="word")
+    area.pack(fill="both", expand=True, padx=16, pady=16)
+    area.insert("1.0", render_markdown(text) if fmt == "markdown" else text)
+    area.configure(state="disabled")
+    ttk.Button(preview, text="Fechar", command=preview.destroy).pack(anchor="e", padx=16, pady=(0, 16))
 
 
 class ProjectDialog(tk.Toplevel):
@@ -29,14 +43,18 @@ class ProjectDialog(tk.Toplevel):
         ttk.Label(self, text="Descrição").grid(row=2, column=0, sticky="nw", padx=22, pady=7)
         self.description = tk.Text(self, height=6, bg="#202d46", fg=TEXT, insertbackground=TEXT, relief="flat", wrap="word")
         self.description.grid(row=2, column=1, sticky="nsew", padx=(0, 22), pady=7)
-        ttk.Label(self, text="Status").grid(row=3, column=0, sticky="w", padx=22, pady=7)
-        self.status = ttk.Combobox(self, state="readonly", values=STATUSES); self.status.grid(row=3, column=1, sticky="ew", padx=(0, 22), pady=7)
-        buttons = ttk.Frame(self); buttons.grid(row=4, column=0, columnspan=2, sticky="e", padx=22, pady=20)
+        ttk.Label(self, text="Formato").grid(row=3, column=0, sticky="w", padx=22, pady=7)
+        self.description_format = ttk.Combobox(self, state="readonly", values=("Texto simples", "Markdown")); self.description_format.grid(row=3, column=1, sticky="ew", padx=(0, 22), pady=7); self.description_format.set("Texto simples")
+        ttk.Button(self, text="Preview", command=lambda: show_markdown_preview(self, self.description.get("1.0", "end").strip(), "markdown" if self.description_format.get() == "Markdown" else "plain")).grid(row=3, column=1, sticky="e", padx=22, pady=7)
+        ttk.Label(self, text="Status").grid(row=4, column=0, sticky="w", padx=22, pady=7)
+        self.status = ttk.Combobox(self, state="readonly", values=STATUSES); self.status.grid(row=4, column=1, sticky="ew", padx=(0, 22), pady=7)
+        buttons = ttk.Frame(self); buttons.grid(row=5, column=0, columnspan=2, sticky="e", padx=22, pady=20)
         ttk.Button(buttons, text="Cancelar", command=self.destroy).pack(side="left", padx=5)
         ttk.Button(buttons, text="Salvar", command=self.save).pack(side="left", padx=5)
         if project:
             self.name.insert(0, project["name"]); self.description.insert("1.0", project.get("description", "")); self.status.set(project.get("status", STATUSES[0]))
         else: self.status.set(STATUSES[0])
+        self.description_format.set("Markdown" if project and project.get("text_formats", {}).get("description") == "markdown" else "Texto simples")
         self.name.focus_set()
         self.bind("<Return>", lambda _: self.save())
         self.bind("<Escape>", lambda _: self.destroy())
@@ -45,7 +63,7 @@ class ProjectDialog(tk.Toplevel):
         name = self.name.get().strip()
         if not name:
             messagebox.showwarning("Projeto", "Informe o nome do projeto.", parent=self); self.name.focus_set(); return
-        self.result = {"name": name, "description": self.description.get("1.0", "end").strip(), "status": self.status.get()}
+        self.result = {"name": name, "description": self.description.get("1.0", "end").strip(), "status": self.status.get(), "text_formats": {"description": "markdown" if self.description_format.get() == "Markdown" else "plain"}}
         self.destroy()
 
 
@@ -58,11 +76,15 @@ class ProjectWorkspace(tk.Toplevel):
             ttk.Label(self, text=label).grid(row=row, column=0, sticky="nw", padx=20, pady=6); text = tk.Text(self, height=3 if key != "notes" else 4, bg="#202d46", fg=TEXT, insertbackground=TEXT, relief="flat", wrap="word"); text.grid(row=row, column=1, sticky="ew", padx=(0, 20), pady=6); text.insert("1.0", project.get(key, "")); self.fields[key] = text
         lists = ttk.Frame(self); lists.grid(row=4, column=0, columnspan=2, sticky="nsew", padx=20, pady=10); lists.columnconfigure((0, 1), weight=1); lists.rowconfigure(1, weight=1)
         self.completed = self._checklist(lists, 0, "O que já rodei", project.get("completed_checks", [])); self.pending = self._checklist(lists, 1, "O que falta executar", project.get("pending_checks", []))
-        actions = ttk.Frame(self); actions.grid(row=5, column=1, sticky="e", padx=20, pady=14); ttk.Button(actions, text="Prompts", command=lambda: PromptManager(self, self.storage, self.project)).pack(side="left", padx=4); ttk.Button(actions, text="Salvar", command=self.save).pack(side="left", padx=4); self.bind("<Control-s>", lambda _: self.save()); self.bind("<Escape>", lambda _: self.destroy())
+        actions = ttk.Frame(self); actions.grid(row=5, column=1, sticky="e", padx=20, pady=14); ttk.Label(actions, text="Formato:").pack(side="left", padx=4); self.text_format=ttk.Combobox(actions, state="readonly", values=("Texto simples","Markdown"), width=14); self.text_format.set("Markdown" if project.get("text_formats", {}).get("notes")=="markdown" else "Texto simples"); self.text_format.pack(side="left", padx=4); ttk.Button(actions, text="Preview", command=self.preview_text).pack(side="left", padx=4); ttk.Button(actions, text="Prompts", command=lambda: PromptManager(self, self.storage, self.project)).pack(side="left", padx=4); ttk.Button(actions, text="Salvar", command=self.save).pack(side="left", padx=4); self.bind("<Control-s>", lambda _: self.save()); self.bind("<Escape>", lambda _: self.destroy())
 
     def _checklist(self, parent, column, title, values):
         box = ttk.LabelFrame(parent, text=title, padding=8); box.grid(row=0, column=column, rowspan=2, sticky="nsew", padx=(0, 8) if column == 0 else (8, 0)); box.columnconfigure(0, weight=1); box.rowconfigure(0, weight=1); listbox = tk.Listbox(box, bg="#202d46", fg=TEXT, selectbackground="#285e61", relief="flat", height=10); listbox.grid(row=0, column=0, columnspan=3, sticky="nsew"); [listbox.insert("end", value) for value in values]
         ttk.Button(box, text="Adicionar", command=lambda: self._add_item(listbox)).grid(row=1, column=0, sticky="w", pady=(8, 0)); ttk.Button(box, text="Editar", command=lambda: self._edit_item(listbox)).grid(row=1, column=1, pady=(8, 0)); ttk.Button(box, text="Excluir", command=lambda: self._delete_item(listbox)).grid(row=1, column=2, sticky="e", pady=(8, 0)); return listbox
+
+    def preview_text(self):
+        text = "\n\n".join(self.fields[key].get("1.0", "end").strip() for key in ("where_stopped", "next_step", "notes"))
+        show_markdown_preview(self, text, "markdown" if self.text_format.get() == "Markdown" else "plain")
 
     @staticmethod
     def _add_item(listbox):
@@ -80,19 +102,19 @@ class ProjectWorkspace(tk.Toplevel):
         if selection and messagebox.askyesno("Checklist", "Excluir o item selecionado?", parent=listbox.winfo_toplevel()): listbox.delete(selection[0])
 
     def save(self):
-        values = {key: text.get("1.0", "end").strip() for key, text in self.fields.items()}; values["completed_checks"] = list(self.completed.get(0, "end")); values["pending_checks"] = list(self.pending.get(0, "end")); self.storage.update_project(self.project["id"], self.project["name"], self.project.get("description", ""), self.project.get("status", STATUSES[0]), **values); messagebox.showinfo("Projeto", "Informações e checklists salvos em JSON.", parent=self); self.destroy()
+        values = {key: text.get("1.0", "end").strip() for key, text in self.fields.items()}; values["text_formats"] = {key: ("markdown" if self.text_format.get() == "Markdown" else "plain") for key in self.fields}; values["completed_checks"] = list(self.completed.get(0, "end")); values["pending_checks"] = list(self.pending.get(0, "end")); self.storage.update_project(self.project["id"], self.project["name"], self.project.get("description", ""), self.project.get("status", STATUSES[0]), **values); messagebox.showinfo("Projeto", "Informações e checklists salvos em JSON.", parent=self); self.destroy()
 
 
 class PromptDialog(tk.Toplevel):
     def __init__(self, parent, prompt=None):
         super().__init__(parent); self.result = None; self.title("Editar Prompt" if prompt else "Novo Prompt"); self.geometry("650x500"); self.minsize(520, 400); self.transient(parent); self.grab_set(); self.columnconfigure(1, weight=1); self.rowconfigure(3, weight=1)
-        ttk.Label(self, text=self.title(), style="Section.TLabel").grid(row=0, column=0, columnspan=2, sticky="w", padx=20, pady=(18, 12)); ttk.Label(self, text="Título").grid(row=1, column=0, sticky="w", padx=20, pady=6); self.title_entry=ttk.Entry(self); self.title_entry.grid(row=1,column=1,sticky="ew",padx=(0,20),pady=6); ttk.Label(self,text="Categoria").grid(row=2,column=0,sticky="w",padx=20,pady=6); self.category=ttk.Entry(self); self.category.grid(row=2,column=1,sticky="ew",padx=(0,20),pady=6); ttk.Label(self,text="Conteúdo").grid(row=3,column=0,sticky="nw",padx=20,pady=6); self.content=tk.Text(self,bg="#202d46",fg=TEXT,insertbackground=TEXT,relief="flat",wrap="word"); self.content.grid(row=3,column=1,sticky="nsew",padx=(0,20),pady=6); buttons=ttk.Frame(self); buttons.grid(row=4,column=0,columnspan=2,sticky="e",padx=20,pady=14); ttk.Button(buttons,text="Cancelar",command=self.destroy).pack(side="left",padx=4); ttk.Button(buttons,text="Salvar",command=self.save).pack(side="left",padx=4)
+        ttk.Label(self, text=self.title(), style="Section.TLabel").grid(row=0, column=0, columnspan=2, sticky="w", padx=20, pady=(18, 12)); ttk.Label(self, text="Título").grid(row=1, column=0, sticky="w", padx=20, pady=6); self.title_entry=ttk.Entry(self); self.title_entry.grid(row=1,column=1,sticky="ew",padx=(0,20),pady=6); ttk.Label(self,text="Categoria").grid(row=2,column=0,sticky="w",padx=20,pady=6); self.category=ttk.Entry(self); self.category.grid(row=2,column=1,sticky="ew",padx=(0,20),pady=6); ttk.Label(self,text="Conteúdo").grid(row=3,column=0,sticky="nw",padx=20,pady=6); self.content=tk.Text(self,bg="#202d46",fg=TEXT,insertbackground=TEXT,relief="flat",wrap="word"); self.content.grid(row=3,column=1,sticky="nsew",padx=(0,20),pady=6); ttk.Label(self,text="Formato").grid(row=4,column=0,sticky="w",padx=20,pady=6); self.format=ttk.Combobox(self,state="readonly",values=("Texto simples","Markdown")); self.format.grid(row=4,column=1,sticky="ew",padx=(0,20),pady=6); self.format.set("Texto simples"); ttk.Button(self,text="Preview",command=lambda: show_markdown_preview(self,self.content.get("1.0","end").strip(),"markdown" if self.format.get()=="Markdown" else "plain")).grid(row=4,column=1,sticky="e",padx=20,pady=6); buttons=ttk.Frame(self); buttons.grid(row=5,column=0,columnspan=2,sticky="e",padx=20,pady=14); ttk.Button(buttons,text="Cancelar",command=self.destroy).pack(side="left",padx=4); ttk.Button(buttons,text="Salvar",command=self.save).pack(side="left",padx=4)
         if prompt: self.title_entry.insert(0,prompt.get("title","")); self.category.insert(0,prompt.get("category","")); self.content.insert("1.0",prompt.get("content",""))
-        self.title_entry.focus_set(); self.bind("<Escape>",lambda _:self.destroy())
+        self.title_entry.focus_set(); self.format.set("Markdown" if prompt and prompt.get("format")=="markdown" else "Texto simples"); self.bind("<Return>",lambda _:self.save()); self.bind("<Escape>",lambda _:self.destroy())
     def save(self):
         title=self.title_entry.get().strip()
         if not title: messagebox.showwarning("Prompt","Informe o título.",parent=self); return
-        self.result={"title":title,"category":self.category.get().strip(),"content":self.content.get("1.0","end").strip()}; self.destroy()
+        self.result={"title":title,"category":self.category.get().strip(),"content":self.content.get("1.0","end").strip(),"format":"markdown" if self.format.get()=="Markdown" else "plain"}; self.destroy()
 
 
 class PromptManager(tk.Toplevel):
@@ -133,7 +155,7 @@ class MainWindow(tk.Tk):
         super().__init__(); self.storage = storage; self.current = None; self.title("Biblioteca de Projetos QA"); self.geometry("1100x700"); self.minsize(800, 520); self.configure(bg=BG); self._configure_theme(); self._build_layout(); self.refresh_projects()
 
     def _configure_theme(self):
-        style = ttk.Style(self); style.theme_use("clam"); style.configure(".", font=("Segoe UI", 11)); style.configure("TFrame", background=SURFACE); style.configure("TLabel", background=SURFACE, foreground=TEXT); style.configure("Muted.TLabel", background=SURFACE, foreground=MUTED); style.configure("Title.TLabel", background=BG, foreground=ACCENT, font=("Segoe UI", 20, "bold")); style.configure("Section.TLabel", background=SURFACE, foreground=ACCENT, font=("Segoe UI", 14, "bold")); style.configure("TButton", background=SURFACE_RAISED, foreground=TEXT, padding=(12, 8)); style.map("TButton", background=[("active", ACCENT)], foreground=[("active", BG)]); style.configure("Treeview", background=SURFACE, fieldbackground=SURFACE, foreground=TEXT, rowheight=32); style.map("Treeview", background=[("selected", "#285e61")], foreground=[("selected", TEXT)])
+        style = ttk.Style(self); style.theme_use("clam"); style.configure(".", font=("Segoe UI", 11)); style.configure("TFrame", background=SURFACE); style.configure("TLabel", background=SURFACE, foreground=TEXT); style.configure("Muted.TLabel", background=SURFACE, foreground=MUTED); style.configure("Title.TLabel", background=BG, foreground=ACCENT, font=("Segoe UI", 20, "bold")); style.configure("Section.TLabel", background=SURFACE, foreground=ACCENT, font=("Segoe UI", 14, "bold")); style.configure("TButton", background=SURFACE_RAISED, foreground=TEXT, padding=(12, 8), borderwidth=1, relief="flat", focusthickness=2, focuscolor=FOCUS); style.map("TButton", background=[("active", FOCUS), ("pressed", ACCENT)], foreground=[("active", BG), ("pressed", BG)]); style.configure("Treeview", background=SURFACE, fieldbackground=SURFACE, foreground=TEXT, rowheight=32); style.map("Treeview", background=[("selected", FOCUS)], foreground=[("selected", BG)])
 
     def _build_layout(self):
         self._build_topbar(); body = ttk.Frame(self, padding=14); body.pack(fill="both", expand=True); body.columnconfigure(1, weight=1); body.rowconfigure(0, weight=1); self._build_sidebar(body); self._build_main_area(body)
@@ -189,13 +211,18 @@ class MainWindow(tk.Tk):
 
     def new_project(self):
         dialog = ProjectDialog(self); self.wait_window(dialog)
-        if dialog.result: project = self.storage.create_project(**dialog.result); self.refresh_projects(); self.project_tree.selection_set(project["id"]); self.open_project()
+        if dialog.result:
+            try:
+                project = self.storage.create_project(**dialog.result); self.refresh_projects(); self.project_tree.selection_set(project["id"]); self.open_project()
+            except (OSError, ValueError) as exc: messagebox.showerror("Projeto", f"Não foi possível criar o projeto:\n{exc}", parent=self)
 
     def edit_project(self):
         project_id = self.selected_id()
         if not project_id: messagebox.showinfo("Projeto", "Selecione um projeto para editar.", parent=self); return
         dialog = ProjectDialog(self, self.storage.get_project(project_id)); self.wait_window(dialog)
-        if dialog.result: self.storage.update_project(project_id, **dialog.result); self.refresh_projects(); self.project_tree.selection_set(project_id)
+        if dialog.result:
+            try: self.storage.update_project(project_id, **dialog.result); self.refresh_projects(); self.project_tree.selection_set(project_id)
+            except (OSError, ValueError) as exc: messagebox.showerror("Projeto", f"Não foi possível salvar o projeto:\n{exc}", parent=self)
 
     def open_project(self):
         project_id = self.selected_id()
@@ -207,7 +234,9 @@ class MainWindow(tk.Tk):
         project_id = self.selected_id()
         if not project_id: messagebox.showinfo("Projeto", "Selecione um projeto para excluir.", parent=self); return
         project = self.storage.get_project(project_id)
-        if messagebox.askyesno("Excluir projeto", f"Excluir permanentemente o projeto '{project['name']}'?", parent=self): self.storage.delete_project(project_id); self.current = None; self.refresh_projects()
+        if messagebox.askyesno("Excluir projeto", f"Excluir permanentemente o projeto '{project['name']}'?", parent=self):
+            try: self.storage.delete_project(project_id); self.current = None; self.refresh_projects()
+            except OSError as exc: messagebox.showerror("Projeto", f"Não foi possível excluir o projeto:\n{exc}", parent=self)
 
     def create_backup(self):
         destination = filedialog.asksaveasfilename(parent=self, title="Salvar backup", defaultextension=".zip", filetypes=(("Arquivo ZIP", "*.zip"),))
@@ -218,7 +247,11 @@ class MainWindow(tk.Tk):
     def restore_backup(self):
         source = filedialog.askopenfilename(parent=self, title="Selecionar backup", filetypes=(("Arquivo ZIP", "*.zip"),))
         if source and messagebox.askyesno("Restaurar", "A restauração substituirá projetos, anexos, templates e configuração atuais. Continuar?", parent=self):
-            try: self.storage.restore_backup(source); self.refresh_projects(); messagebox.showinfo("Restaurar", "Backup restaurado com sucesso.", parent=self)
+            try:
+                self.storage.restore_backup(source)
+                if self.view == "projects": self.refresh_projects()
+                else: self.show_projects(); self.refresh_projects()
+                messagebox.showinfo("Restaurar", "Backup restaurado com sucesso.", parent=self)
             except (OSError, ValueError) as exc: messagebox.showerror("Restaurar", f"Não foi possível restaurar o backup:\n{exc}", parent=self)
 
     def _select_menu(self, item):

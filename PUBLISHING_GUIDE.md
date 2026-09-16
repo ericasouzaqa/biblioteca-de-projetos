@@ -22,7 +22,7 @@ No Linux, execute também `./build.sh`. No Windows, execute `build.bat`.
 
 ```bash
 git add .
-git commit -m "Initial release v0.1.0"
+git commit -m "Markdown support v0.1.1"
 ```
 
 Confirme que não há arquivos de dados pessoais, `dist/`, `build/` ou backups locais no commit.
@@ -42,13 +42,13 @@ A sessão de migração não executa esse comando automaticamente.
 
 O workflow `ci.yml` executa Ruff, pytest, cobertura e build Linux. A matriz Windows executa Ruff, pytest e PyInstaller nos runners `windows-2025` e `windows-2022`. Aguarde todos os jobs passarem antes de criar a tag.
 
-## 6. Publicar v0.1.0
+## 6. Publicar v0.1.1
 
 Somente após CI aprovado:
 
 ```bash
-git tag -a v0.1.0 -m "Release v0.1.0"
-git push origin v0.1.0
+git tag -a v0.1.1 -m "Release v0.1.1"
+git push origin v0.1.1
 ```
 
 O workflow `release.yml` executará novamente lint e testes, gerará os executáveis Linux e Windows, criará os ZIPs portáteis e publicará a release automaticamente com as notas de `RELEASE_NOTES.md`.
@@ -63,4 +63,4 @@ Baixe o pacote da release em uma máquina Windows e em uma máquina Linux compat
 
 ## Regra de segurança
 
-Não usar a tag `v1.0.0` neste projeto. A versão inicial deste novo repositório é exclusivamente `v0.1.0`.
+Não usar a tag `v1.0.0` neste projeto. A versão inicial deste novo repositório é exclusivamente `v0.1.1`.

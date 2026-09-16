@@ -1,4 +1,4 @@
-# Checklist de Release — BibliotecaDeProjetos v0.1.0
+# Checklist de Release — BibliotecaDeProjetos v0.1.1
 
 ## Qualidade
 
@@ -33,12 +33,12 @@
 ## Publicação
 
 - [x] README atualizado.
-- [x] Versionamento definido como `v0.1.0`.
+- [x] Versionamento definido como `v0.1.1`.
 - [x] Release notes geradas.
 - [x] Workflows CI e release automática configurados.
 - [ ] Repositório remoto `biblioteca-de-projetos` criado.
 - [ ] CI remoto executado com sucesso.
-- [ ] Tag `v0.1.0` enviada ao novo remoto.
+- [ ] Tag `v0.1.1` enviada ao novo remoto.
 - [ ] Release publicada.
 
 **Regra:** a publicação está bloqueada enquanto qualquer item não marcado permanecer pendente.

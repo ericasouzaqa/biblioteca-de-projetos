@@ -1,12 +1,12 @@
 # biblioteca-de-projetos
 
-Aplicação desktop offline para analistas de QA organizarem projetos, prompts, checklists, observações e histórico de trabalho. Esta é a versão inicial **v0.1.0** do novo projeto, independente do repositório legado `biblioteca-de-prompts`.
+Aplicação desktop offline para analistas de QA organizarem projetos, prompts, checklists, observações e histórico de trabalho. Esta é a versão inicial **v0.1.1** do novo projeto, independente do repositório legado `biblioteca-de-prompts`.
 
 ## Princípios
 
 O projeto usa Python e Tkinter, não usa banco de dados, login, autenticação, servidor ou API externa. Os dados são gravados somente em arquivos JSON locais.
 
-## Funcionalidades v0.1.0
+## Funcionalidades v0.1.1
 
 A versão inicial oferece cadastro, edição, abertura e exclusão de projetos; campos de acompanhamento; checklists; prompts vinculados com edição, duplicação, favoritos e cópia; busca global; dashboard; backup ZIP; restauração segura e tema escuro.
 
@@ -68,7 +68,7 @@ A cobertura mínima exigida no CI é 80% para o núcleo de armazenamento. O smok
 
 O workflow em `.github/workflows/ci.yml` executa Ruff e pytest no Ubuntu e gera o executável Linux. A matriz Windows executa Ruff, pytest e PyInstaller em Windows 2025 e Windows 2022. O workflow `.github/workflows/release.yml` gera e publica os pacotes quando uma tag `v*` é criada.
 
-A primeira versão usa a tag `v0.1.0`. A tag `v1.0.0` não faz parte deste projeto.
+A primeira versão usa a tag `v0.1.1`. A tag `v1.0.0` não faz parte deste projeto.
 
 ## Licença
 

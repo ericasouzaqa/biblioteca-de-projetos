@@ -1,4 +1,4 @@
-# Release Notes — BibliotecaDeProjetos v0.1.0
+# Release Notes — BibliotecaDeProjetos v0.1.1
 
 ## Conteúdo
 
@@ -16,4 +16,4 @@ A validação real dos executáveis Windows nos runners `windows-2025` e `window
 
 ## Regra de publicação
 
-A tag inicial deve ser exclusivamente `v0.1.0`. A tag `v1.0.0` não pertence a este novo projeto.
+A tag inicial deve ser exclusivamente `v0.1.1`. A tag `v1.0.0` não pertence a este novo projeto.
