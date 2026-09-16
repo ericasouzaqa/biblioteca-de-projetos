@@ -40,7 +40,7 @@ A sessão de migração não executa esse comando automaticamente.
 
 ## 5. Validar o CI
 
-O workflow `ci.yml` executa Ruff, pytest, cobertura e build Linux. A matriz Windows executa Ruff, pytest e PyInstaller nos runners `windows-2019` e `windows-2022`. Aguarde todos os jobs passarem antes de criar a tag.
+O workflow `ci.yml` executa Ruff, pytest, cobertura e build Linux. A matriz Windows executa Ruff, pytest e PyInstaller nos runners `windows-2025` e `windows-2022`. Aguarde todos os jobs passarem antes de criar a tag.
 
 ## 6. Publicar v0.1.0
 

@@ -32,7 +32,7 @@ jobs:
   build-windows:
     strategy:
       matrix:
-        os: [windows-2019, windows-2022]
+        os: [windows-2022, windows-2025]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -80,7 +80,7 @@ jobs:
           files: |
             release-assets/**/BibliotecaDeProjetos-linux
             release-assets/**/BibliotecaDeProjetos-linux.tar.gz
-            release-assets/**/BibliotecaDeProjetos-windows-2019.exe
             release-assets/**/BibliotecaDeProjetos-windows-2022.exe
-            release-assets/**/BibliotecaDeProjetos-windows-windows-2019.zip
             release-assets/**/BibliotecaDeProjetos-windows-windows-2022.zip
+            release-assets/**/BibliotecaDeProjetos-windows-2025.exe
+            release-assets/**/BibliotecaDeProjetos-windows-windows-2025.zip

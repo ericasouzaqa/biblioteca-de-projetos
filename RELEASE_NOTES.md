@@ -12,7 +12,7 @@ O build PyInstaller Linux foi concluído e o smoke test da aplicação Tkinter f
 
 ## Validação remota pendente
 
-A validação real dos executáveis Windows nos runners `windows-2019` e `windows-2022` ainda depende da criação do repositório remoto e da execução dos workflows GitHub Actions. Nenhuma release deve ser publicada antes de ambos os jobs Windows passarem, incluindo Ruff, pytest, cobertura, build e smoke test do executável.
+A validação real dos executáveis Windows nos runners `windows-2025` e `windows-2022` ainda depende da criação do repositório remoto e da execução dos workflows GitHub Actions. Nenhuma release deve ser publicada antes de ambos os jobs Windows passarem, incluindo Ruff, pytest, cobertura, build e smoke test do executável.
 
 ## Regra de publicação
 

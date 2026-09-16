@@ -25,7 +25,7 @@
 - [x] Código-fonte Python validado.
 - [x] Smoke test local completo aprovado.
 - [x] Build PyInstaller Linux concluído.
-- [ ] Workflow `windows-2019` concluído com sucesso.
+- [ ] Workflow `windows-2025` concluído com sucesso.
 - [ ] Workflow `windows-2022` concluído com sucesso.
 - [ ] Executável Windows gerado e iniciado no runner.
 - [x] Configuração de pacote portátil criada.

@@ -66,7 +66,7 @@ A cobertura mínima exigida no CI é 80% para o núcleo de armazenamento. O smok
 
 ## CI e releases
 
-O workflow em `.github/workflows/ci.yml` executa Ruff e pytest no Ubuntu e gera o executável Linux. A matriz Windows executa Ruff, pytest e PyInstaller em Windows 2019 e Windows 2022. O workflow `.github/workflows/release.yml` gera e publica os pacotes quando uma tag `v*` é criada.
+O workflow em `.github/workflows/ci.yml` executa Ruff e pytest no Ubuntu e gera o executável Linux. A matriz Windows executa Ruff, pytest e PyInstaller em Windows 2025 e Windows 2022. O workflow `.github/workflows/release.yml` gera e publica os pacotes quando uma tag `v*` é criada.
 
 A primeira versão usa a tag `v0.1.0`. A tag `v1.0.0` não faz parte deste projeto.
 
